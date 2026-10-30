@@ -1,6 +1,6 @@
 // Guarda o app no celular para abrir sem internet.
 // Ao mudar qualquer arquivo do app, aumente a versão abaixo para o celular baixar a nova.
-const VERSAO = 'diario-v2';
+const VERSAO = 'diario-v3';
 const ARQUIVOS = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

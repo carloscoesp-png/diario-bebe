@@ -292,6 +292,36 @@ button.sync{all:unset;cursor:pointer;font-size:.72rem;letter-spacing:.06em;text-
 .sync.aviso-bk{color:var(--milk)}
 .sync.aviso-bk::before{background:var(--milk)}
 button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+/* perfil */
+.t-perfil{--c:var(--sleep)}
+.ola{color:var(--muted);font-size:.9rem;font-weight:700}
+.app.modo-perfil #alerta,.app.modo-perfil #alertaMae,.app.modo-perfil #acoes,.app.modo-perfil .abas{display:none!important}
+.voltar{all:unset;cursor:pointer;align-self:flex-start;color:var(--sleep);font-weight:700;padding:6px 0}
+.voltar:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:4px 16px;display:flex;flex-direction:column}
+.prow{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);min-width:0}
+.prow span:first-child{color:var(--muted)}
+.prow span:last-child{font-weight:700;text-align:right;overflow-wrap:anywhere}
+.pcard .link{--c:var(--sleep);margin:12px 0}
+.cresc{display:flex;flex-direction:column;gap:12px}
+.ccard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px 10px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.ccard .lab{font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.ccard .val{font-family:var(--display);font-weight:700;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.ccard .delta{font-size:.88rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.ccard svg{display:block;width:100%;height:auto;margin-top:6px;touch-action:pan-y}
+.ccard svg text{font-family:var(--body);font-size:10px;fill:var(--muted);font-variant-numeric:tabular-nums}
+.ccard .vazio-g{font-size:.88rem;color:var(--muted);margin:4px 0}
+.medidas .mrow:focus-visible{outline:2px solid var(--sleep)}
+.t-perfil.btn-add{border-color:color-mix(in srgb,var(--sleep) 55%,var(--line));color:var(--sleep)}
+.tip{position:fixed;z-index:25;pointer-events:none;background:var(--ink);color:var(--bg);padding:6px 10px;border-radius:8px;font-size:.84rem;font-variant-numeric:tabular-nums;transform:translate(-50%,calc(-100% - 10px));white-space:nowrap}
+.entrada{position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;display:flex;justify-content:center;
+  padding:calc(24px + env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px))}
+.entrada-box{width:100%;max-width:440px;display:flex;flex-direction:column;gap:18px;margin:auto 0}
+.entrada-ic{border-radius:18px;align-self:flex-start}
+.entrada h1{font-family:var(--display);font-weight:700;font-size:1.9rem;line-height:1.1;margin:0;text-wrap:balance}
+.entrada-sub{margin:-8px 0 0;color:var(--muted)}
+.entrada .campo input{background:var(--surface)}
+.entrada-btn{--c:var(--sleep);flex:none;font-size:1.05rem}
 .bkbox{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px}
 .bkbox p{margin:0;font-size:.92rem}
 .bkbox b{font-family:var(--display)}
@@ -300,7 +330,8 @@ button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;bord
 
 <div class="app">
   <header class="top">
-    <button class="bebe" id="bebeBtn" type="button">
+    <button class="bebe" id="bebeBtn" type="button" aria-label="Abrir perfil">
+      <span class="ola" id="ola" hidden></span>
       <span class="bebe-nome" id="bebeNome">Seu bebê</span>
       <span class="bebe-idade" id="bebeIdade">Toque para adicionar nome e data de nascimento</span>
     </button>
@@ -317,6 +348,17 @@ button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;bord
     <button type="button" role="tab" class="aba" id="abaSono" aria-selected="false">Higiene do sono</button>
     <button type="button" role="tab" class="aba" id="abaSaltos" aria-selected="false">Saltos</button>
     <button type="button" role="tab" class="aba" id="abaMae" aria-selected="false">Mamãe<span class="badge" id="badgeMae" hidden></span></button>
+  </div>
+
+  <div class="view" id="viewPerfil" hidden>
+    <button type="button" class="voltar" id="voltar">‹ Voltar</button>
+    <div class="sh"><h2>Perfil</h2><p id="perfilSub"></p></div>
+    <div class="pcard" id="perfilDados"></div>
+    <h3 class="sub-h">Crescimento</h3>
+    <div class="cresc" id="cresc"></div>
+    <div class="mlista medidas" id="listaMedidas" hidden></div>
+    <button type="button" class="btn-add t-perfil" id="addMedida">+ Adicionar peso e comprimento</button>
+    <p class="aviso">Anote as medidas das consultas ou da caderneta da criança. Para saber se o crescimento está adequado, o pediatra compara com as curvas da OMS, que levam em conta a idade e o sexo do bebê.</p>
   </div>
 
   <div class="view" id="viewSono" hidden>
@@ -363,7 +405,7 @@ button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;bord
   </div>
 
   <div class="view" id="viewMae" hidden>
-    <div class="sh"><h2>Para a mamãe</h2><p id="maeSub"></p></div>
+    <div class="sh"><h2 id="maeTit">Para a mamãe</h2><p id="maeSub"></p></div>
     <div class="dia-nav">
       <button class="seta" id="maeAnt" type="button" aria-label="Dia anterior">‹</button>
       <h2 id="maeDia">Hoje</h2>
@@ -410,6 +452,21 @@ button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;bord
   </div>
 </div>
 <div class="toast" id="toast" hidden></div>
+<div class="tip" id="tip" hidden></div>
+
+<div class="entrada" id="entrada" hidden role="dialog" aria-modal="true" aria-labelledby="entradaTitulo">
+  <form class="entrada-box" id="formEntrada" autocomplete="off">
+    <img src="icons/icon-192.png" alt="" width="72" height="72" class="entrada-ic">
+    <h1 id="entradaTitulo">Bem-vinda ao Diário do Bebê</h1>
+    <p class="entrada-sub">Antes de começar, conte um pouco sobre vocês. Assim o app pode chamar cada um pelo nome nos avisos.</p>
+    <div class="campo"><label for="eMae">Seu nome</label><input id="eMae" name="eMae" required placeholder="Como você gosta de ser chamada" autocapitalize="words"></div>
+    <div class="campo"><label for="eBebe">Nome do bebê</label><input id="eBebe" name="eBebe" required placeholder="Nome do bebê" autocapitalize="words"></div>
+    <div class="campo t-perfil"><span class="lbl">É menino ou menina?</span><div id="eSexo"></div></div>
+    <div class="campo"><label for="eNasc">Data de nascimento</label><input type="date" id="eNasc" name="eNasc"><p class="dica" style="margin:4px 0 0">Se ainda não nasceu, pode deixar em branco e preencher depois.</p></div>
+    <p class="erro" id="eErro" hidden></p>
+    <button type="submit" class="btn pri entrada-btn">Começar</button>
+  </form>
+</div>
 
 <script>
 const $=s=>document.querySelector(s);
@@ -424,6 +481,7 @@ IC.salto='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-widt
 IC.maeItem='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5a5 5 0 0 1-7-7l6-6a5 5 0 0 1 7 7z"/><path d="M7.5 10.5l6 6"/></svg>';
 IC.backup='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>';
 const CHECK='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const SEXO={m:'Menino',f:'Menina'};
 const MTIPO={vitamina:'Vitamina',remedio:'Remédio',outro:'Outro'};
 const PRESETS=[['1x ao dia',['08:00']],['12 em 12 h',['08:00','20:00']],['8 em 8 h',['06:00','14:00','22:00']],['6 em 6 h',['00:00','06:00','12:00','18:00']],['Quando precisar',[]]];
 const NOMES={mamada:'Mamada',sono:'Sono',fralda:'Fralda',remedio:'Medicação',salto:'Salto',maeItem:'Item'};
@@ -486,6 +544,7 @@ function dataCurta(ms){return new Date(ms).toLocaleDateString('pt-BR',{day:'nume
 const LADO={esq:'Peito esquerdo',dir:'Peito direito',ambos:'Os dois peitos',mamadeira:'Mamadeira'};
 const FRALDA={xixi:'Xixi',coco:'Cocô',ambos:'Xixi e cocô',seca:'Seca'};
 
+let medidas=[],boasVindasVista=false;
 let saltosReg={},saltoAtual=null,maeItens=[],maeTomadas=[],maeOcupado=false;
 let regs=[],bebe={},store=null,carregado=false,dia=inicioDia(Date.now()),editando=null,tipoAtual=null,apagarArmado=false;
 
@@ -516,10 +575,10 @@ const STORE_KEY='diario-bebe-v1',BACKUP_KEY='diario-bebe-ultimo-backup';
 function localStore(){
   const K=STORE_KEY;let data={regs:[],bebe:{}};
   try{const v=JSON.parse(localStorage.getItem(K));if(v&&Array.isArray(v.regs))data=v}catch(e){}
-  data.saltos=data.saltos||{};data.bebe=data.bebe||{};data.maeItens=data.maeItens||{};data.maeTomadas=data.maeTomadas||{};
-  let f=()=>{},g=()=>{},h=()=>{},k=()=>{},l=()=>{};
+  data.saltos=data.saltos||{};data.bebe=data.bebe||{};data.maeItens=data.maeItens||{};data.maeTomadas=data.maeTomadas||{};data.medidas=data.medidas||{};
+  let f=()=>{},g=()=>{},h=()=>{},k=()=>{},l=()=>{},mm=()=>{};
   const lista=o=>Object.entries(o).map(([id,v])=>({...v,id}));
-  const emit=()=>{f(data.regs.slice());g(data.bebe);h(data.saltos);k(lista(data.maeItens));l(lista(data.maeTomadas))};
+  const emit=()=>{f(data.regs.slice());g(data.bebe);h(data.saltos);k(lista(data.maeItens));l(lista(data.maeTomadas));mm(lista(data.medidas))};
   const save=()=>{try{localStorage.setItem(K,JSON.stringify(data))}catch(e){}emit()};
   return{local:true,
     add:async o=>{const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);data.regs.push({...o,id});save();return id},
@@ -529,7 +588,8 @@ function localStore(){
     setSalto:async(n,o)=>{data.saltos['s'+n]=o;save()},
     setMaeItem:async(id,o)=>{data.maeItens[id]=o;save()},delMaeItem:async id=>{delete data.maeItens[id];save()},
     setTomada:async(id,o)=>{data.maeTomadas[id]=o;save()},delTomada:async id=>{delete data.maeTomadas[id];save()},
-    watch:(a,b,c,d,e)=>{f=a;g=b;h=c;k=d;l=e;emit()}};
+    setMedida:async(id,o)=>{data.medidas[id]=o;save()},delMedida:async id=>{delete data.medidas[id];save()},
+    watch:(a,b,c,d,e,err,m)=>{f=a;g=b;h=c;k=d;l=e;mm=m||mm;emit()}};
 }
 function dbStore(db){
   const col=db.collection('registros'),bdoc=db.doc('config/bebe');
@@ -538,7 +598,9 @@ function dbStore(db){
     setSalto:(n,o)=>db.doc('saltos/s'+n).set(o),
     setMaeItem:(id,o)=>db.doc('mae_itens/'+id).set(o),delMaeItem:id=>db.doc('mae_itens/'+id).delete(),
     setTomada:(id,o)=>db.doc('mae_tomadas/'+id).set(o),delTomada:id=>db.doc('mae_tomadas/'+id).delete(),
-    watch:(a,b,c,d,e,err)=>{
+    setMedida:(id,o)=>db.doc('medidas/'+id).set(o),delMedida:id=>db.doc('medidas/'+id).delete(),
+    watch:(a,b,c,d,e,err,m)=>{
+      if(m)db.collection('medidas').onSnapshot(s=>m(s.docs.map(x=>({...x.data(),id:x.id}))),err);
       db.collection('mae_itens').onSnapshot(s=>d(s.docs.map(x=>({...x.data(),id:x.id}))),err);
       db.collection('mae_tomadas').orderBy('t','desc').limit(800).onSnapshot(s=>e(s.docs.map(x=>({...x.data(),id:x.id}))),err);
       col.orderBy('t','desc').limit(1000).onSnapshot(s=>a(s.docs.map(d=>({...d.data(),id:d.id}))),err);
@@ -558,9 +620,19 @@ async function gravar(fn){
 }
 
 /* ---------- render ---------- */
+/* ---------- nomes ---------- */
+const nomeMae=()=>(bebe.mae||'').trim();
+const nomeBebe=()=>(bebe.nome||'').trim();
+const oa=(m,f)=>bebe.sexo==='f'?f:m;
+const bebeTxt=()=>nomeBebe()||'o bebê';
+const oBebe=()=>nomeBebe()?oa('o ','a ')+nomeBebe():'o bebê';
+const Bebe=()=>{const t=bebeTxt();return t.charAt(0).toUpperCase()+t.slice(1)};
+const doBebe=()=>nomeBebe()?oa('do ','da ')+nomeBebe():'do bebê';
+function saudacao(){const h=new Date().getHours();return h<5?'Boa madrugada':h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'}
 function renderBebe(){
   $('#bebeNome').textContent=bebe.nome||'Seu bebê';
-  let t='Toque para adicionar nome e data de nascimento';
+  const ola=$('#ola');ola.hidden=!nomeMae();ola.textContent=saudacao()+', '+nomeMae();
+  let t='Toque para criar o perfil';
   if(bebe.nasc){
     const n=new Date(bebe.nasc+'T00:00');const dias=Math.floor((inicioDia(Date.now())-n.getTime())/D);
     if(dias<0)t='Nasce em '+n.toLocaleDateString('pt-BR');
@@ -569,7 +641,7 @@ function renderBebe(){
     else if(dias<91){const s=Math.floor(dias/7),r=dias%7;t=s+' semanas'+(r?' e '+r+(r===1?' dia':' dias'):'')}
     else{const m=Math.floor(dias/30.44);t=m+(m===1?' mês':' meses')}
     t+=' · nasceu em '+n.toLocaleDateString('pt-BR',{day:'numeric',month:'short'});
-  }else if(bebe.nome)t='Toque para adicionar a data de nascimento';
+  }else if(bebe.nome)t='Toque no nome para adicionar a data de nascimento';
   $('#bebeIdade').textContent=t;
 }
 
@@ -592,7 +664,7 @@ function renderSono(){
   const fx=faixaIdade(),agora=Date.now(),sa=sonoAtivo(),ua=ultimoAcordar(),temSono=regs.some(r=>r.tipo==='sono');
   $('#sonoSub').textContent=fx?'Referências para '+fx.label+(bebe.dpp?', pela idade corrigida (data prevista do parto)':'')+'.':'Adicione a data de nascimento tocando no nome do bebê para ver as referências da idade.';
   const el=$('#janela');let cls='',h='';
-  if(sa){h=`<span class="eyebrow">Dormindo</span><span class="big">Dormindo há ${dur(agora-sa.t)}</span><p>Pegou no sono às ${hhmm(sa.t)}. Toque no botão Sono quando ele acordar.</p>`}
+  if(sa){h=`<span class="eyebrow">Dormindo</span><span class="big">${esc(Bebe())} dorme há ${dur(agora-sa.t)}</span><p>Pegou no sono às ${hhmm(sa.t)}. Toque no botão Sono quando ${oa('ele','ela')} acordar.</p>`}
   else if(ua){
     const aw=(agora-ua)/MIN;
     if(fx){
@@ -600,9 +672,9 @@ function renderSono(){
       const esc_=Math.max(fx.max*1.3,aw*1.05),p=x=>Math.min(100,x/esc_*100).toFixed(1)+'%';
       const T={dentro:'Dentro da janela de sono',perto:'Hora de observar sinais de sono',passou:'Passou da janela de sono'};
       const D_={dentro:'Pode brincar e interagir. A janela começa em '+fmtMin(fx.min-aw)+'.',
-        perto:'Fique atenta a bocejos, olhar parado e esfregar os olhos, e comece a acalmar o bebê.',
-        passou:'Ele pode estar cansado demais. Diminua os estímulos, deixe o ambiente calmo e ajude a dormir.'};
-      h=`<span class="eyebrow">${T[st]}</span><span class="big">Acordado há ${dur(agora-ua)}</span>
+        perto:(nomeMae()?nomeMae()+', fique':'Fique')+' atenta a bocejos, olhar parado e esfregar os olhos, e comece a acalmar '+oBebe()+'.',
+        passou:Bebe()+' pode estar '+oa('cansado','cansada')+' demais. Diminua os estímulos, deixe o ambiente calmo e ajude a dormir.'};
+      h=`<span class="eyebrow">${T[st]}</span><span class="big">${esc(Bebe())} está ${oa('acordado','acordada')} há ${dur(agora-ua)}</span>
         <div class="jbar"><span class="jzona" style="left:${p(fx.min)};width:calc(${p(fx.max)} - ${p(fx.min)})"></span><span class="jfill" style="width:${p(aw)}"></span></div>
         <div class="jlab"><span style="left:0">0</span><span style="left:${p(fx.min)}">${fmtMin(fx.min)}</span><span style="left:${p(fx.max)}">${fmtMin(fx.max)}</span></div>
         <p>${D_[st]} Para ${fx.label}, o comum é ficar de ${fmtMin(fx.min)} a ${fmtMin(fx.max)} acordado entre um sono e outro.</p>`;
@@ -624,7 +696,7 @@ function renderSono(){
       const a=ua+fx.min*MIN,b=ua+fx.max*MIN;
       if(agora<a){eb='Próximo sono provável';big='Entre '+hhmm(a)+' e '+hhmm(b);desc='Começa em '+fmtMin((a-agora)/MIN)+'. Uns 10 minutos antes, comece a diminuir os estímulos.'}
       else if(agora<=b){eb='Hora de dormir';big='Agora, até '+hhmm(b);desc='Observe os sinais de sono e comece a rotina para ele dormir.'}
-      else{eb='Passou da hora de dormir';big='A janela ia até '+hhmm(b);desc='Ele pode estar cansado demais. Diminua os estímulos e ajude a dormir assim que possível.';c='forte passou'}
+      else{eb='Passou da hora de dormir';big='A janela ia até '+hhmm(b);desc=Bebe()+' pode estar '+oa('cansado','cansada')+' demais. Diminua os estímulos e ajude a dormir assim que possível.';c='forte passou'}
     }
     ps.className='alerta psono '+c;
     ps.innerHTML=`<span class="eyebrow">${eb}</span><b>${big}</b><span class="desc">${desc}</span><span class="noite">${noite}</span>`;
@@ -650,7 +722,7 @@ function renderAcoes(){
   let ss,sonoAlerta=false;
   if(sa)ss='Dormindo há '+dur(Date.now()-sa.t)+' · toque quando acordar';
   else{const ua=ultimoAcordar();
-    if(ua){const aw=(Date.now()-ua)/MIN,fx=faixaIdade();ss='Acordado há '+dur(Date.now()-ua);
+    if(ua){const aw=(Date.now()-ua)/MIN,fx=faixaIdade();ss=oa('Acordado','Acordada')+' há '+dur(Date.now()-ua);
       if(fx&&aw>fx.max){ss+=' · passou da janela de sono';sonoAlerta=true}
       else if(fx&&aw>=fx.min){ss+=' · observe sinais de sono';sonoAlerta=true}}
     else ss='Nenhum ainda'}
@@ -719,7 +791,7 @@ function renderAlerta(){
   const ag=SALTOS.find(s=>statusSalto(s,v.sem)==='agora'),br=SALTOS.find(s=>statusSalto(s,v.sem)==='breve'),prox=SALTOS.find(s=>s.ini>v.sem);
   el.dataset.acao='salto';
   if(ag){const fim=v.ms+ag.fim*SEM;el.className='alerta forte';el.dataset.n=ag.n;
-    el.innerHTML=`<span class="eyebrow"><span class="pulso" style="--c:var(--leap)"></span>Salto acontecendo agora</span><b>Salto ${ag.n} · ${ag.nome}</b><span class="desc">A fase mais difícil deve ir até por volta de ${dataCurta(fim)}. É comum: ${ag.esperar.slice(0,2).join(', ').toLowerCase()}. Toque para ver o que esperar.</span>`;return}
+    el.innerHTML=`<span class="eyebrow"><span class="pulso" style="--c:var(--leap)"></span>Salto ${esc(doBebe())} acontecendo agora</span><b>Salto ${ag.n} · ${ag.nome}</b><span class="desc">A fase mais difícil deve ir até por volta de ${dataCurta(fim)}. É comum: ${ag.esperar.slice(0,2).join(', ').toLowerCase()}. Toque para ver o que esperar.</span>`;return}
   if(br){const ini=v.ms+br.ini*SEM,dias=Math.ceil((ini-Date.now())/D);el.className='alerta forte';el.dataset.n=br.n;
     el.innerHTML=`<span class="eyebrow">Salto chegando ${dias<=1?'amanhã':'em '+dias+' dias'}</span><b>Salto ${br.n} · ${br.nome}</b><span class="desc">Deve começar por volta de ${dataCurta(ini)}. Toque para ver o que esperar e como ajudar.</span>`;return}
   if(prox){const ini=v.ms+prox.ini*SEM,sem=Math.round((ini-Date.now())/SEM);el.className='alerta';el.dataset.n=prox.n;
@@ -780,6 +852,7 @@ function dosesDoDia(d0){
   return out.sort((a,b)=>a.ms-b.ms||a.it.nome.localeCompare(b.it.nome,'pt-BR'));
 }
 function renderMae(){
+  $('#maeTit').textContent=nomeMae()?'Para você, '+nomeMae():'Para a mamãe';
   const hoje=inicioDia(Date.now()),d0=diaMae,key=diaKey(d0);
   $('#maeDia').textContent=rotuloDia(d0);$('#maeProx').disabled=d0>=hoje;
   if(!carregado)return;
@@ -810,7 +883,7 @@ function renderAlertaMae(){
   if(!ds.length){el.hidden=true;return}
   const atr=ds.filter(x=>x.st==='atrasada'),x=atr[0]||ds[0];
   el.hidden=false;
-  el.innerHTML=`<span class="eyebrow">Mamãe · ${atr.length?(atr.length===1?'dose atrasada':atr.length+' doses atrasadas'):'hora de tomar'}</span>
+  el.innerHTML=`<span class="eyebrow">${esc(nomeMae()||'Mamãe')} · ${atr.length?(atr.length===1?'dose atrasada':atr.length+' doses atrasadas'):'hora de tomar'}</span>
     <b>${esc(x.it.nome)} · ${x.h}</b><span class="desc">${ds.length>1?'E mais '+(ds.length-1)+(ds.length-1===1?' dose':' doses')+'. ':''}Toque para abrir a lista e marcar.</span>`;
 }
 function horaRow(h){return`<div class="hora-row"><input type="time" name="hora" value="${esc(h)}" aria-label="Horário"><button type="button" class="rm" aria-label="Remover horário">×</button></div>`}
@@ -852,9 +925,63 @@ async function lerImport(file){
   }catch(e){info.textContent='Este arquivo não parece ser um backup do Diário do Bebê.';$('#bkRestaurar').hidden=true}
 }
 
-function render(){renderAcoes();renderDia();renderAlerta();renderSaltos();renderMae();renderAlertaMae();renderSono();renderSync()}
-const ABAS=[['dia','#viewDia','#abaDia'],['sono','#viewSono','#abaSono'],['saltos','#viewSaltos','#abaSaltos'],['mae','#viewMae','#abaMae']];
-function mostrarAba(q){if(!ABAS.some(a=>a[0]===q))q='dia';ABAS.forEach(([k,v,a])=>{$(v).hidden=k!==q;$(a).setAttribute('aria-selected',String(k===q))})}
+/* ---------- perfil e crescimento ---------- */
+const fmtNum=(v,d)=>v.toLocaleString('pt-BR',{maximumFractionDigits:d});
+const fmtPeso=v=>fmtNum(v,3)+' kg',fmtCm=v=>fmtNum(v,1)+' cm';
+const dataLonga=d=>new Date(d+'T00:00').toLocaleDateString('pt-BR',{day:'numeric',month:'short',year:'numeric'}).replace(/ de /g,' ').replace('.','');
+const dataMed=d=>dataCurta(new Date(d+'T00:00').getTime());
+function niceStep(r){const p=Math.pow(10,Math.floor(Math.log10(r))),f=r/p;return(f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p}
+function grafico(pts,cor,fmt){
+  // linha única: data no eixo x, medida no eixo y
+  const W=320,H=150,pl=38,pr=16,pt=22,pb=22,ms=pts.map(p=>new Date(p.d+'T00:00').getTime());
+  let x0=Math.min(...ms),x1=Math.max(...ms);if(x1===x0)x1=x0+D;
+  let lo=Math.min(...pts.map(p=>p.v)),hi=Math.max(...pts.map(p=>p.v));if(hi===lo){lo-=1;hi+=1}
+  const st=niceStep((hi-lo)/3);lo=Math.floor(lo/st)*st;hi=Math.ceil(hi/st)*st;
+  const X=t=>pl+(t-x0)/(x1-x0)*(W-pl-pr),Y=v=>pt+(hi-v)/(hi-lo)*(H-pt-pb);
+  let g='';for(let v=lo;v<=hi+st/2;v+=st){const y=Y(v).toFixed(1);g+=`<line x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}" style="stroke:var(--line)" stroke-width="1"/><text x="${pl-6}" y="${+y+3}" text-anchor="end">${fmtNum(+v.toFixed(3),2)}</text>`}
+  const xy=pts.map((p,i)=>[X(ms[i]),Y(p.v)]);
+  const linha=`<path d="${xy.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join('')}" fill="none" style="stroke:${cor}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const pontos=xy.map(q=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="4" style="fill:${cor};stroke:var(--surface)" stroke-width="2"/>`).join('');
+  const u=xy[xy.length-1];
+  const rot=`<text x="${Math.min(u[0],W-pr).toFixed(1)}" y="${(u[1]-9).toFixed(1)}" text-anchor="end" style="fill:var(--ink);font-weight:700">${fmt(pts[pts.length-1].v)}</text>`;
+  const eixo=`<text x="${pl}" y="${H-6}">${dataMed(pts[0].d)}</text><text x="${W-pr}" y="${H-6}" text-anchor="end">${dataMed(pts[pts.length-1].d)}</text>`;
+  const dados=esc(JSON.stringify(pts.map((p,i)=>[+(xy[i][0]/W).toFixed(4),+(xy[i][1]/H).toFixed(4),dataMed(p.d)+' · '+fmt(p.v)])));
+  return`<svg viewBox="0 0 ${W} ${H}" role="img" data-pts="${dados}" aria-label="Evolução de ${pts.length} medidas">${g}${linha}${pontos}${rot}${eixo}<circle class="foco" r="6" style="fill:none;stroke:${cor}" stroke-width="2" visibility="hidden"/></svg>`;
+}
+function cartaoMedida(chave,rotulo,cor,fmt,fmtDelta){
+  const pts=medidas.filter(m=>m[chave]!=null).map(m=>({d:m.data,v:m[chave]})).reverse();
+  if(!pts.length)return`<div class="ccard"><span class="lab">${rotulo}</span><span class="vazio-g">Nenhuma medida ainda.</span></div>`;
+  const u=pts[pts.length-1],a=pts[pts.length-2];
+  let delta='Medido em '+dataLonga(u.d);
+  if(a){const dias=Math.round((new Date(u.d)-new Date(a.d))/D),dv=u.v-a.v;delta=(dv>=0?'+':'−')+fmtDelta(Math.abs(dv))+' desde '+dataMed(a.d)+' ('+dias+(dias===1?' dia)':' dias)')}
+  return`<div class="ccard"><span class="lab">${rotulo}</span><span class="val">${fmt(u.v)}</span><span class="delta">${delta}</span>
+    ${pts.length>1?grafico(pts,cor,fmt):'<span class="vazio-g">Adicione mais uma medida para ver a evolução no gráfico.</span>'}</div>`;
+}
+function renderPerfil(){
+  if(!carregado)return;
+  const sx=SEXO[bebe.sexo];
+  $('#perfilSub').textContent=nomeBebe()?'Dados '+doBebe()+' e a evolução do crescimento.':'Preencha os dados para o app chamar vocês pelo nome.';
+  const idade=bebe.nasc?$('#bebeIdade').textContent.split(' · ')[0]:'';
+  const row=(k,v)=>`<div class="prow"><span>${k}</span><span>${v}</span></div>`;
+  $('#perfilDados').innerHTML=row('Mamãe',esc(nomeMae()||'—'))+row('Bebê',esc(nomeBebe()||'—')+(sx?' · '+sx.toLowerCase():''))
+    +row('Nascimento',bebe.nasc?dataLonga(bebe.nasc)+(idade?'<br><span style="font-weight:400;color:var(--muted)">'+esc(idade)+'</span>':''):'—')
+    +(bebe.dpp?row('Data prevista do parto',dataLonga(bebe.dpp)):'')
+    +'<button type="button" class="link" id="editarPerfil">Editar perfil</button>';
+  $('#cresc').innerHTML=cartaoMedida('peso','Peso','var(--diaper)',fmtPeso,v=>v<1?Math.round(v*1000)+' g':fmtNum(v,3)+' kg')
+    +cartaoMedida('comp','Comprimento','var(--sleep)',fmtCm,v=>fmtNum(v,1)+' cm');
+  const ml=$('#listaMedidas');ml.hidden=!medidas.length;
+  ml.innerHTML=medidas.map(m=>`<button type="button" class="mrow" data-medida="${esc(m.id)}"><span class="dtx"><span class="dn">${dataLonga(m.data)}</span>
+    <span class="ds">${esc([m.peso!=null?fmtPeso(m.peso):'',m.comp!=null?fmtCm(m.comp):'',m.cab!=null?'cabeça '+fmtCm(m.cab):''].filter(Boolean).join(' · '))}</span>${m.nota?`<span class="ds" style="font-style:italic">${esc(m.nota)}</span>`:''}</span></button>`).join('');
+}
+function abrirBoasVindas(){
+  $('#eMae').value=bebe.mae||'';$('#eBebe').value=bebe.nome||'';$('#eNasc').value=bebe.nasc||'';
+  $('#eSexo').innerHTML=chips('esexo',SEXO,bebe.sexo||'');$('#eErro').hidden=true;
+  $('#entrada').hidden=false;
+}
+
+function render(){renderAcoes();renderDia();renderAlerta();renderSaltos();renderMae();renderAlertaMae();renderSono();renderSync();renderPerfil()}
+const ABAS=[['dia','#viewDia','#abaDia'],['sono','#viewSono','#abaSono'],['saltos','#viewSaltos','#abaSaltos'],['mae','#viewMae','#abaMae'],['perfil','#viewPerfil',null]];
+function mostrarAba(q){if(!ABAS.some(a=>a[0]===q))q='dia';ABAS.forEach(([k,v,a])=>{$(v).hidden=k!==q;if(a)$(a).setAttribute('aria-selected',String(k===q))});$('.app').classList.toggle('modo-perfil',q==='perfil')}
 function irAba(q){mostrarAba(q);try{if(location.hash!=='#'+q)location.hash=q}catch(e){}}
 
 /* ---------- formulário ---------- */
@@ -913,8 +1040,10 @@ function abrir(tipo,reg,opts={}){
     ${campoHora('t','Horário em que foi dada',r.t||Date.now())}${campoNota(r.nota)}
     <p class="dica">O app só anota o que foi dado e mostra o horário da próxima dose. Siga sempre a receita e a orientação do pediatra.</p>`;
   }else if(tipo==='bebe'){
-    titulo='Sobre o bebê';sheet.className='sheet t-sono';
-    h=`<div class="campo"><label for="bnome">Nome</label><input id="bnome" name="bnome" value="${esc(bebe.nome)}" placeholder="Nome do bebê"></div>
+    titulo='Editar perfil';sheet.className='sheet t-sono';
+    h=`<div class="campo"><label for="bmae">Seu nome</label><input id="bmae" name="bmae" value="${esc(bebe.mae)}" placeholder="Nome da mamãe"></div>
+    <div class="campo"><label for="bnome">Nome do bebê</label><input id="bnome" name="bnome" value="${esc(bebe.nome)}" placeholder="Nome do bebê"></div>
+    <div class="campo"><span class="lbl">Sexo</span>${chips('bsexo',SEXO,bebe.sexo||'')}</div>
     <div class="campo"><label for="bnasc">Data de nascimento</label><input type="date" id="bnasc" name="bnasc" value="${esc(bebe.nasc)}"></div>
     <p class="dica" style="margin:0">A data usada para calcular os saltos fica separada, na aba Saltos.</p>`;
   }else if(tipo==='backup'){
@@ -928,6 +1057,14 @@ function abrir(tipo,reg,opts={}){
     <div class="campo"><label for="bkArq">Restaurar de uma cópia</label><input type="file" id="bkArq" accept="application/json,.json"></div>
     <p class="dica" id="bkInfo" style="margin:0">Use para passar os dados para um celular novo.</p>
     <button type="button" class="btn apagar" id="bkRestaurar" hidden style="flex:none">Substituir pelos dados do arquivo</button>`;
+  }else if(tipo==='medida'){
+    const m=reg||{};titulo=reg?'Editar medida':'Nova medida';sheet.className='sheet t-perfil';
+    const num=v=>v==null||v===''?'':String(v).replace('.',',');
+    h=`<div class="campo"><label for="mdata">Data</label><input type="date" id="mdata" name="mdata" required value="${esc(m.data||diaKey(Date.now()))}"></div>
+    <div class="lado"><div class="campo"><label for="mpeso">Peso (kg)</label><input id="mpeso" name="mpeso" inputmode="decimal" value="${esc(num(m.peso))}" placeholder="Ex.: 4,250"></div>
+    <div class="campo"><label for="mcomp">Comprimento (cm)</label><input id="mcomp" name="mcomp" inputmode="decimal" value="${esc(num(m.comp))}" placeholder="Ex.: 54,5"></div></div>
+    <div class="campo"><label for="mcab">Perímetro da cabeça (cm)</label><input id="mcab" name="mcab" inputmode="decimal" value="${esc(num(m.cab))}" placeholder="Opcional"></div>
+    ${campoNota(m.nota)}`;
   }else if(tipo==='maeItem'){
     const it=reg||{};titulo=reg?'Editar '+(MTIPO[it.tipo]||'item').toLowerCase():'Nova vitamina ou remédio';
     const hs=Array.isArray(it.horarios)?it.horarios:(reg?[]:['08:00']);
@@ -1036,8 +1173,8 @@ $('#form').addEventListener('click',async e=>{
   if(rm){rm.parentElement.remove();atualizarSemHora();return}
   if(e.target.id==='apagar'){
     if(!apagarArmado){apagarArmado=true;e.target.classList.add('armado');e.target.textContent='Toque de novo para apagar';return}
-    const id=editando.id,mae=tipoAtual==='maeItem';
-    if(await gravar(()=>mae?store.delMaeItem(id):store.remove(id))){fechar();toast(mae?'Removido da lista':'Registro apagado')}
+    const id=editando.id,mae=tipoAtual==='maeItem',med=tipoAtual==='medida';
+    if(await gravar(()=>mae?store.delMaeItem(id):med?store.delMedida(id):store.remove(id))){fechar();toast(mae?'Removido da lista':med?'Medida apagada':'Registro apagado')}
   }
 });
 $('#form').addEventListener('submit',async e=>{
@@ -1045,7 +1182,7 @@ $('#form').addEventListener('submit',async e=>{
   const f=new FormData(e.target),erro=$('#erro');erro.hidden=true;
   const falha=m=>{erro.textContent=m;erro.hidden=false};
   if(tipoAtual==='bebe'){
-    const b={nome:(f.get('bnome')||'').trim(),nasc:f.get('bnasc')||'',dpp:bebe.dpp||''};
+    const b={...bebe,mae:(f.get('bmae')||'').trim(),nome:(f.get('bnome')||'').trim(),sexo:f.get('bsexo')||bebe.sexo||'',nasc:f.get('bnasc')||'',perfil:true};
     if(await gravar(()=>store.setBebe(b)))fechar();return;
   }
   if(tipoAtual==='maeItem'){
@@ -1055,6 +1192,22 @@ $('#form').addEventListener('submit',async e=>{
     const dose=(f.get('mdose')||'').trim();if(dose)o.dose=dose;const nota=(f.get('nota')||'').trim();if(nota)o.nota=nota;
     const id=(era&&era.id)||('m'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
     if(await gravar(()=>store.setMaeItem(id,o))){fechar();toast(era?'Lista atualizada':nome+' adicionado à lista')}
+    return;
+  }
+  if(tipoAtual==='medida'){
+    const data=f.get('mdata')||'';if(!data)return falha('Informe a data da medida.');
+    if(data>diaKey(Date.now()))return falha('A data está no futuro.');
+    const n=v=>{v=String(v||'').trim().replace(/\s/g,'').replace(',','.');if(!v)return null;const x=parseFloat(v);return isNaN(x)?NaN:x};
+    let peso=n(f.get('mpeso'));const comp=n(f.get('mcomp')),cab=n(f.get('mcab'));
+    if(peso>100)peso=peso/1000; // digitou em gramas
+    if([peso,comp,cab].some(x=>Number.isNaN(x)))return falha('Use só números, por exemplo 4,250.');
+    if(peso==null&&comp==null&&cab==null)return falha('Preencha o peso, o comprimento ou o perímetro da cabeça.');
+    if(peso!=null&&(peso<0.3||peso>40))return falha('Confira o peso: use quilos, por exemplo 4,250.');
+    if(comp!=null&&(comp<20||comp>130))return falha('Confira o comprimento: use centímetros, por exemplo 54,5.');
+    const o={data};if(peso!=null)o.peso=Math.round(peso*1000)/1000;if(comp!=null)o.comp=comp;if(cab!=null)o.cab=cab;
+    const nota=(f.get('nota')||'').trim();if(nota)o.nota=nota;
+    const id=(editando&&editando.id)||('d'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+    if(await gravar(()=>store.setMedida(id,o))){fechar();toast(editando?'Medida atualizada':'Medida salva')}
     return;
   }
   if(tipoAtual==='salto'){
@@ -1094,13 +1247,40 @@ $('#linha').addEventListener('click',e=>{
   if(g){const t=g.dataset.grupo,ab=!gruposAbertos.has(t);ab?gruposAbertos.add(t):gruposAbertos.delete(t);
     g.parentElement.classList.toggle('aberto',ab);g.setAttribute('aria-expanded',String(ab));g.nextElementSibling.hidden=!ab;return}
   const b=e.target.closest('.reg');if(!b)return;const r=regs.find(x=>x.id===b.dataset.id);if(r)abrir(r.tipo,r)});
-$('#bebeBtn').addEventListener('click',()=>{if(carregado)abrir('bebe')});
+$('#bebeBtn').addEventListener('click',()=>{if(!carregado)return;irAba('perfil');scrollTo(0,0)});
+$('#voltar').addEventListener('click',()=>irAba('dia'));
+$('#addMedida').addEventListener('click',()=>{if(carregado)abrir('medida')});
+$('#viewPerfil').addEventListener('click',e=>{
+  if(e.target.id==='editarPerfil'){abrir('bebe');return}
+  const m=e.target.closest('[data-medida]');if(m){const r=medidas.find(x=>x.id===m.dataset.medida);if(r)abrir('medida',r)}
+});
+// toque ou passe o dedo no gráfico para ver cada medida
+function mostrarPonto(e){
+  const svg=e.target.closest('.ccard svg');if(!svg)return;
+  const pts=JSON.parse(svg.dataset.pts),r=svg.getBoundingClientRect(),fx=(e.clientX-r.left)/r.width;
+  let p=pts[0];for(const q of pts)if(Math.abs(q[0]-fx)<Math.abs(p[0]-fx))p=q;
+  const f=svg.querySelector('.foco'),vb=svg.viewBox.baseVal;f.setAttribute('cx',p[0]*vb.width);f.setAttribute('cy',p[1]*vb.height);f.setAttribute('visibility','visible');
+  const t=$('#tip');t.textContent=p[2];t.style.left=(r.left+p[0]*r.width)+'px';t.style.top=(r.top+p[1]*r.height)+'px';t.hidden=false;
+  clearTimeout(mostrarPonto.k);mostrarPonto.k=setTimeout(esconderPonto,2500);
+}
+function esconderPonto(){$('#tip').hidden=true;document.querySelectorAll('.ccard .foco').forEach(f=>f.setAttribute('visibility','hidden'))}
+$('#cresc').addEventListener('pointermove',mostrarPonto);
+$('#cresc').addEventListener('pointerdown',mostrarPonto);
+$('#cresc').addEventListener('pointerleave',esconderPonto);
+addEventListener('scroll',esconderPonto,{passive:true});
+$('#formEntrada').addEventListener('submit',async e=>{
+  e.preventDefault();const f=new FormData(e.target),er=$('#eErro');er.hidden=true;
+  const mae=(f.get('eMae')||'').trim(),nome=(f.get('eBebe')||'').trim();
+  if(!mae||!nome){er.textContent='Preencha o seu nome e o nome do bebê.';er.hidden=false;return}
+  const b={...bebe,mae,nome,sexo:f.get('esexo')||'',nasc:f.get('eNasc')||'',perfil:true};
+  if(await gravar(()=>store.setBebe(b))){$('#entrada').hidden=true;toast('Tudo pronto, '+mae+'!')}
+});
 $('#sync').addEventListener('click',()=>{if(carregado&&store&&store.local)abrir('backup')});
 // ao voltar para o app (estava em segundo plano), atualiza contadores na hora
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();renderBebe()}});
 $('#alerta').addEventListener('click',e=>{const el=e.currentTarget;if(el.dataset.acao==='base'){irAba('saltos');$('#dppSaltos').focus()}else abrir('salto',null,{n:+el.dataset.n||1})});
 $('#formBase').addEventListener('submit',async e=>{e.preventDefault();if(!carregado)return;
-  const d=$('#dppSaltos').value||'';const b={nome:bebe.nome||'',nasc:bebe.nasc||'',dpp:d};
+  const d=$('#dppSaltos').value||'';const b={...bebe,dpp:d};
   if(await gravar(()=>store.setBebe(b))){$('#dppSaltos').blur();toast(d?'Data dos saltos salva':'Data removida: os saltos voltam a usar a data de nascimento')}});
 $('#listaSaltos').addEventListener('click',e=>{const b=e.target.closest('.srow');if(b&&carregado)abrir('salto',null,{n:+b.dataset.n})});
 $('#abaDia').addEventListener('click',()=>irAba('dia'));
@@ -1146,11 +1326,12 @@ render();renderBebe();
   // pede ao navegador para não apagar os dados quando o celular estiver com pouco espaço
   if(store.local)try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
   store.watch(rs=>{regs=rs.filter(r=>r&&typeof r.t==='number').sort((a,b)=>b.t-a.t);carregado=true;render()},
-    b=>{bebe=b||{};renderBebe();render()},
+    b=>{bebe=b||{};renderBebe();render();if(!bebe.perfil&&!boasVindasVista){boasVindasVista=true;abrirBoasVindas()}},
     s=>{saltosReg=s||{};renderSaltos()},
     its=>{maeItens=its.filter(x=>x&&x.nome).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));renderMae();renderAlertaMae()},
     ts=>{maeTomadas=ts.filter(x=>x&&typeof x.t==='number');renderMae();renderAlertaMae()},
-    ()=>toast('Não foi possível carregar os registros. Recarregue a página.'));
+    ()=>toast('Não foi possível carregar os registros. Recarregue a página.'),
+    ms=>{medidas=ms.filter(x=>x&&x.data).sort((a,b)=>b.data.localeCompare(a.data));renderPerfil()});
 })();
 // funciona sem internet depois da primeira abertura
 if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
