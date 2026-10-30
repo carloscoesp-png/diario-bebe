@@ -346,7 +346,7 @@ button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;bord
 .ccard .vazio-g{font-size:.88rem;color:var(--muted);margin:4px 0}
 .medidas .mrow:focus-visible{outline:2px solid var(--sleep)}
 .t-perfil.btn-add{border-color:color-mix(in srgb,var(--sleep) 55%,var(--line));color:var(--sleep)}
-.tip{position:fixed;z-index:25;pointer-events:none;background:var(--ink);color:var(--bg);padding:6px 10px;border-radius:8px;font-size:.84rem;font-variant-numeric:tabular-nums;transform:translate(-50%,calc(-100% - 10px));white-space:nowrap}
+.tip{position:fixed;z-index:25;pointer-events:none;background:var(--ink);color:var(--bg);padding:6px 10px;border-radius:8px;font-size:.84rem;font-variant-numeric:tabular-nums;transform:translate(-50%,calc(-100% - 10px));white-space:pre-line;text-align:center}
 .entrada{position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;display:flex;justify-content:center;
   padding:calc(24px + env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px))}
 .entrada-box{width:100%;max-width:440px;display:flex;flex-direction:column;gap:18px;margin:auto 0}
@@ -387,15 +387,14 @@ button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;bord
   <div class="view" id="viewPerfil" hidden>
     <div class="sh"><h2>Perfil</h2><p id="perfilSub"></p></div>
     <div class="pcard" id="perfilDados"></div>
+    <h3 class="sub-h">Crescimento</h3>
+    <div class="cresc" id="cresc"></div>
+    <button type="button" class="btn-add t-perfil" id="addMedida">+ Adicionar peso e comprimento</button>
+    <p class="aviso">Toque num ponto do gráfico para ver a medida, e toque de novo para corrigir ou apagar. Para saber se o crescimento está adequado, o pediatra compara com as curvas da OMS, que levam em conta a idade e o sexo do bebê.</p>
     <h3 class="sub-h">Vacinas</h3>
     <p class="dica" id="vacSub" style="margin:-14px 0 0"></p>
     <div class="vacinas" id="vacinas"></div>
     <p class="aviso">Segue o Calendário Nacional de Vacinação do SUS (versão de junho de 2026). As datas são calculadas pela data de nascimento. A caderneta e a equipe da unidade de saúde têm a palavra final. Vacinas da rede particular, como a meningocócica B, não estão na lista: confira com o pediatra.</p>
-    <h3 class="sub-h">Crescimento</h3>
-    <div class="cresc" id="cresc"></div>
-    <div class="mlista medidas" id="listaMedidas" hidden></div>
-    <button type="button" class="btn-add t-perfil" id="addMedida">+ Adicionar peso e comprimento</button>
-    <p class="aviso">Anote as medidas das consultas ou da caderneta da criança. Para saber se o crescimento está adequado, o pediatra compara com as curvas da OMS, que levam em conta a idade e o sexo do bebê.</p>
   </div>
 
   <div class="view" id="viewSono" hidden>
@@ -1045,11 +1044,11 @@ function grafico(pts,cor,fmt){
   const u=xy[xy.length-1];
   const rot=`<text x="${Math.min(u[0],W-pr).toFixed(1)}" y="${(u[1]-9).toFixed(1)}" text-anchor="end" style="fill:var(--ink);font-weight:700">${fmt(pts[pts.length-1].v)}</text>`;
   const eixo=`<text x="${pl}" y="${H-6}">${dataMed(pts[0].d)}</text><text x="${W-pr}" y="${H-6}" text-anchor="end">${dataMed(pts[pts.length-1].d)}</text>`;
-  const dados=esc(JSON.stringify(pts.map((p,i)=>[+(xy[i][0]/W).toFixed(4),+(xy[i][1]/H).toFixed(4),dataMed(p.d)+' · '+fmt(p.v)])));
+  const dados=esc(JSON.stringify(pts.map((p,i)=>[+(xy[i][0]/W).toFixed(4),+(xy[i][1]/H).toFixed(4),dataMed(p.d)+' · '+fmt(p.v),p.id])));
   return`<svg viewBox="0 0 ${W} ${H}" role="img" data-pts="${dados}" aria-label="Evolução de ${pts.length} medidas">${g}${linha}${pontos}${rot}${eixo}<circle class="foco" r="6" style="fill:none;stroke:${cor}" stroke-width="2" visibility="hidden"/></svg>`;
 }
 function cartaoMedida(chave,rotulo,cor,fmt,fmtDelta){
-  const pts=medidas.filter(m=>m[chave]!=null).map(m=>({d:m.data,v:m[chave]})).reverse();
+  const pts=medidas.filter(m=>m[chave]!=null).map(m=>({d:m.data,v:m[chave],id:m.id})).reverse();
   if(!pts.length)return`<div class="ccard"><span class="lab">${rotulo}</span><span class="vazio-g">Nenhuma medida ainda.</span></div>`;
   const u=pts[pts.length-1],a=pts[pts.length-2];
   let delta='Medido em '+dataLonga(u.d);
@@ -1070,9 +1069,6 @@ function renderPerfil(){
     +'<button type="button" class="link" id="editarPerfil">Editar perfil</button>';
   $('#cresc').innerHTML=cartaoMedida('peso','Peso','var(--diaper)',fmtPeso,v=>v<1?Math.round(v*1000)+' g':fmtNum(v,3)+' kg')
     +cartaoMedida('comp','Comprimento','var(--sleep)',fmtCm,v=>fmtNum(v,1)+' cm');
-  const ml=$('#listaMedidas');ml.hidden=!medidas.length;
-  ml.innerHTML=medidas.map(m=>`<button type="button" class="mrow" data-medida="${esc(m.id)}"><span class="dtx"><span class="dn">${dataLonga(m.data)}</span>
-    <span class="ds">${esc([m.peso!=null?fmtPeso(m.peso):'',m.comp!=null?fmtCm(m.comp):'',m.cab!=null?'cabeça '+fmtCm(m.cab):''].filter(Boolean).join(' · '))}</span>${m.nota?`<span class="ds" style="font-style:italic">${esc(m.nota)}</span>`:''}</span></button>`).join('');
 }
 function abrirBoasVindas(){
   $('#eMae').value=bebe.mae||'';$('#eBebe').value=bebe.nome||'';$('#eNasc').value=bebe.nasc||'';
@@ -1379,7 +1375,8 @@ function mostrarPonto(e){
   const pts=JSON.parse(svg.dataset.pts),r=svg.getBoundingClientRect(),fx=(e.clientX-r.left)/r.width;
   let p=pts[0];for(const q of pts)if(Math.abs(q[0]-fx)<Math.abs(p[0]-fx))p=q;
   const f=svg.querySelector('.foco'),vb=svg.viewBox.baseVal;f.setAttribute('cx',p[0]*vb.width);f.setAttribute('cy',p[1]*vb.height);f.setAttribute('visibility','visible');
-  const t=$('#tip');t.textContent=p[2];t.style.left=(r.left+p[0]*r.width)+'px';t.style.top=(r.top+p[1]*r.height)+'px';t.hidden=false;
+  if(e.type==='pointerdown'){if(mostrarPonto.ult===p[3]&&!$('#tip').hidden){const r=medidas.find(x=>x.id===p[3]);esconderPonto();mostrarPonto.ult=null;if(r)abrir('medida',r);return}mostrarPonto.ult=p[3]}
+  const t=$('#tip');t.textContent=p[2]+(e.type==='pointerdown'?'\nToque de novo para editar':'');t.style.left=Math.min(innerWidth-95,Math.max(95,r.left+p[0]*r.width))+'px';t.style.top=(r.top+p[1]*r.height)+'px';t.hidden=false;
   clearTimeout(mostrarPonto.k);mostrarPonto.k=setTimeout(esconderPonto,2500);
 }
 function esconderPonto(){$('#tip').hidden=true;document.querySelectorAll('.ccard .foco').forEach(f=>f.setAttribute('visibility','hidden'))}
