@@ -31,7 +31,7 @@
 
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.app{max-width:560px;margin:0 auto;padding-block:20px 48px;display:flex;flex-direction:column;gap:22px}
+.app{max-width:560px;margin:0 auto;padding-block:20px calc(100px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:22px}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .num{font-variant-numeric:tabular-nums}
@@ -284,7 +284,7 @@ form{display:flex;flex-direction:column;gap:16px}
 .sbloco ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:3px}
 .separa{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
 
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);
   padding:10px 16px;border-radius:12px;z-index:30;font-size:.92rem;max-width:calc(100% - 40px)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 /* app instalado */
@@ -292,6 +292,16 @@ button.sync{all:unset;cursor:pointer;font-size:.72rem;letter-spacing:.06em;text-
 .sync.aviso-bk{color:var(--milk)}
 .sync.aviso-bk::before{background:var(--milk)}
 button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+/* barra inferior */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;justify-content:center;
+  background:color-mix(in srgb,var(--surface) 94%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);
+  padding:4px max(16px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.nav-in{display:flex;width:100%;max-width:420px}
+.nav button{all:unset;cursor:pointer;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 6px;font-size:.74rem;font-weight:700;color:var(--muted);position:relative;-webkit-user-select:none;user-select:none}
+.nav button svg{width:25px;height:25px}
+.nav button[aria-current="page"]{color:var(--sleep)}
+.nav button:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;border-radius:12px}
+.nav .ponto-nav{position:absolute;top:6px;left:calc(50% + 9px);width:9px;height:9px;border-radius:50%;background:var(--med);box-shadow:0 0 0 2px var(--surface)}
 /* vacinas */
 .alerta.vac{--c:var(--diaper)}
 .alerta.vac.atrasada{--c:var(--med)}
@@ -375,7 +385,6 @@ button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;bord
   </div>
 
   <div class="view" id="viewPerfil" hidden>
-    <button type="button" class="voltar" id="voltar">‹ Voltar</button>
     <div class="sh"><h2>Perfil</h2><p id="perfilSub"></p></div>
     <div class="pcard" id="perfilDados"></div>
     <h3 class="sub-h">Vacinas</h3>
@@ -479,6 +488,10 @@ button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;bord
     <form id="form" autocomplete="off"></form>
   </div>
 </div>
+<nav class="nav" aria-label="Navegação"><div class="nav-in">
+  <button type="button" id="navInicio" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9v11a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9"/></svg>Início</button>
+  <button type="button" id="navPerfil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Perfil<span class="ponto-nav" id="pontoPerfil" hidden></span></button>
+</div></nav>
 <div class="toast" id="toast" hidden></div>
 <div class="tip" id="tip" hidden></div>
 
@@ -557,6 +570,7 @@ function renderVacinas(){
 function renderAlertaVac(){
   const el=$('#alertaVac');if(!carregado){el.hidden=true;return}
   const g=gruposVacina().find(x=>x.st==='atrasada'||x.st==='breve');
+  $('#pontoPerfil').hidden=!g;
   if(!g){el.hidden=true;return}
   el.hidden=false;el.className='alerta vac forte'+(g.st==='atrasada'?' atrasada':'');
   const quando=g.st==='atrasada'?'pendentes desde '+dataMed(diaKey(g.ms)):g.dias===0?'previstas para hoje':g.dias===1?'previstas para amanhã':'em '+g.dias+' dias';
@@ -1068,7 +1082,8 @@ function abrirBoasVindas(){
 
 function render(){renderAcoes();renderDia();renderAlerta();renderSaltos();renderMae();renderAlertaMae();renderSono();renderSync();renderPerfil();renderAlertaVac()}
 const ABAS=[['dia','#viewDia','#abaDia'],['sono','#viewSono','#abaSono'],['saltos','#viewSaltos','#abaSaltos'],['mae','#viewMae','#abaMae'],['perfil','#viewPerfil',null]];
-function mostrarAba(q){if(!ABAS.some(a=>a[0]===q))q='dia';ABAS.forEach(([k,v,a])=>{$(v).hidden=k!==q;if(a)$(a).setAttribute('aria-selected',String(k===q))});$('.app').classList.toggle('modo-perfil',q==='perfil')}
+function mostrarAba(q){if(!ABAS.some(a=>a[0]===q))q='dia';ABAS.forEach(([k,v,a])=>{$(v).hidden=k!==q;if(a)$(a).setAttribute('aria-selected',String(k===q))});$('.app').classList.toggle('modo-perfil',q==='perfil');
+  if(q==='perfil'){$('#navPerfil').setAttribute('aria-current','page');$('#navInicio').removeAttribute('aria-current')}else{$('#navInicio').setAttribute('aria-current','page');$('#navPerfil').removeAttribute('aria-current')}}
 function irAba(q){mostrarAba(q);try{if(location.hash!=='#'+q)location.hash=q}catch(e){}}
 
 /* ---------- formulário ---------- */
@@ -1335,7 +1350,8 @@ $('#linha').addEventListener('click',e=>{
     g.parentElement.classList.toggle('aberto',ab);g.setAttribute('aria-expanded',String(ab));g.nextElementSibling.hidden=!ab;return}
   const b=e.target.closest('.reg');if(!b)return;const r=regs.find(x=>x.id===b.dataset.id);if(r)abrir(r.tipo,r)});
 $('#bebeBtn').addEventListener('click',()=>{if(!carregado)return;irAba('perfil');scrollTo(0,0)});
-$('#voltar').addEventListener('click',()=>irAba('dia'));
+$('#navInicio').addEventListener('click',()=>{if(!$('#viewPerfil').hidden||location.hash==='#perfil')irAba('dia');scrollTo({top:0,behavior:'smooth'})});
+$('#navPerfil').addEventListener('click',()=>{if(!carregado)return;irAba('perfil');scrollTo(0,0)});
 $('#alertaVac').addEventListener('click',()=>{irAba('perfil');const v=document.querySelector('.vgrupo.atrasada,.vgrupo.breve');(v||$('#vacinas')).scrollIntoView({block:'start'})});
 let vacOcupado=false;
 $('#vacinas').addEventListener('click',async e=>{
