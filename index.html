@@ -292,10 +292,33 @@ button.sync{all:unset;cursor:pointer;font-size:.72rem;letter-spacing:.06em;text-
 .sync.aviso-bk{color:var(--milk)}
 .sync.aviso-bk::before{background:var(--milk)}
 button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+/* vacinas */
+.alerta.vac{--c:var(--diaper)}
+.alerta.vac.atrasada{--c:var(--med)}
+.vacinas{display:flex;flex-direction:column;gap:8px}
+.vgrupo{--c:var(--diaper);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 14px}
+.vgrupo.breve{border-color:color-mix(in srgb,var(--diaper) 55%,var(--line));background:color-mix(in srgb,var(--diaper) 8%,var(--surface))}
+.vgrupo.atrasada{--c:var(--med);border-color:color-mix(in srgb,var(--med) 55%,var(--line))}
+.vgrupo summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:12px 0}
+.vgrupo summary::-webkit-details-marker{display:none}
+.vgrupo summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:8px}
+.vgrupo .vt{font-weight:700}
+.vgrupo .vd{grid-column:1;font-size:.86rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.vgrupo .pill{grid-row:1/3;grid-column:2}
+.vgrupo .pill.ok{background:var(--diaper);border-color:var(--diaper);color:var(--surface)}
+.vgrupo .pill.breve{color:var(--diaper);border-color:var(--diaper)}
+.vgrupo .pill.atrasada{background:var(--med);border-color:var(--med);color:var(--surface)}
+.vlista{display:flex;flex-direction:column;border-top:1px solid var(--line);padding:4px 0 10px}
+.vac-item{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:1fr 30px;gap:12px;align-items:center;padding:9px 0;min-width:0}
+.vac-item:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:8px}
+.vac-item .ck{width:28px;height:28px;box-sizing:border-box;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:var(--surface)}
+.vac-item.ok .ck{background:var(--diaper);border-color:var(--diaper)}
+.vac-item .ds.ok{color:var(--diaper)}
+.vlista .link{--c:var(--diaper);margin-top:6px}
 /* perfil */
 .t-perfil{--c:var(--sleep)}
 .ola{color:var(--muted);font-size:.9rem;font-weight:700}
-.app.modo-perfil #alerta,.app.modo-perfil #alertaMae,.app.modo-perfil #acoes,.app.modo-perfil .abas{display:none!important}
+.app.modo-perfil #alerta,.app.modo-perfil #alertaMae,.app.modo-perfil #alertaVac,.app.modo-perfil #acoes,.app.modo-perfil .abas{display:none!important}
 .voltar{all:unset;cursor:pointer;align-self:flex-start;color:var(--sleep);font-weight:700;padding:6px 0}
 .voltar:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
 .pcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:4px 16px;display:flex;flex-direction:column}
@@ -340,6 +363,7 @@ button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;bord
 
   <button type="button" class="alerta" id="alerta" hidden></button>
   <button type="button" class="alerta mae" id="alertaMae" hidden></button>
+  <button type="button" class="alerta vac" id="alertaVac" hidden></button>
 
   <section class="acoes" id="acoes" aria-label="Registrar"></section>
 
@@ -354,6 +378,10 @@ button.sync:focus-visible{outline:2px solid var(--focus);outline-offset:2px;bord
     <button type="button" class="voltar" id="voltar">‹ Voltar</button>
     <div class="sh"><h2>Perfil</h2><p id="perfilSub"></p></div>
     <div class="pcard" id="perfilDados"></div>
+    <h3 class="sub-h">Vacinas</h3>
+    <p class="dica" id="vacSub" style="margin:-14px 0 0"></p>
+    <div class="vacinas" id="vacinas"></div>
+    <p class="aviso">Segue o Calendário Nacional de Vacinação do SUS (versão de junho de 2026). As datas são calculadas pela data de nascimento. A caderneta e a equipe da unidade de saúde têm a palavra final. Vacinas da rede particular, como a meningocócica B, não estão na lista: confira com o pediatra.</p>
     <h3 class="sub-h">Crescimento</h3>
     <div class="cresc" id="cresc"></div>
     <div class="mlista medidas" id="listaMedidas" hidden></div>
@@ -482,6 +510,61 @@ IC.maeItem='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wi
 IC.backup='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>';
 const CHECK='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const SEXO={m:'Menino',f:'Menina'};
+// Calendário Nacional de Vacinação da criança (SUS / CGPNI-MS), versão de junho de 2026. m = idade em meses
+const VACINAS=[
+ {m:0,v:[['bcg','BCG','dose única'],['hepb','Hepatite B','dose ao nascer']]},
+ {m:2,v:[['penta1','Pentavalente (DTP + Hib + hepatite B)','1ª dose'],['vip1','Poliomielite inativada (VIP)','1ª dose'],['rota1','Rotavírus','1ª dose'],['pneumo1','Pneumocócica','1ª dose']]},
+ {m:3,v:[['menc1','Meningocócica C','1ª dose']]},
+ {m:4,v:[['penta2','Pentavalente (DTP + Hib + hepatite B)','2ª dose'],['vip2','Poliomielite inativada (VIP)','2ª dose'],['rota2','Rotavírus','2ª dose'],['pneumo2','Pneumocócica','2ª dose']]},
+ {m:5,v:[['menc2','Meningocócica C','2ª dose']]},
+ {m:6,v:[['penta3','Pentavalente (DTP + Hib + hepatite B)','3ª dose'],['vip3','Poliomielite inativada (VIP)','3ª dose'],['flu1','Gripe (influenza)','1ª dose'],['covid1','Covid-19','1ª dose']]},
+ {m:7,v:[['covid2','Covid-19','2ª dose'],['flu2','Gripe (influenza)','2ª dose, só no primeiro ano']]},
+ {m:9,v:[['fa1','Febre amarela','1ª dose'],['covid3','Covid-19','3ª dose']]},
+ {m:12,v:[['scr1','Tríplice viral (sarampo, caxumba, rubéola)','1ª dose'],['pneumoR','Pneumocócica','reforço'],['acwy','Meningocócica ACWY','reforço']]},
+ {m:15,v:[['vipR','Poliomielite inativada (VIP)','reforço'],['hepa','Hepatite A','dose única'],['dtp1','DTP (tríplice bacteriana)','1º reforço'],['tetra','Tetra viral (tríplice viral + catapora)','dose única']]},
+ {m:48,v:[['dtp2','DTP (tríplice bacteriana)','2º reforço'],['vz2','Varicela (catapora)','2ª dose'],['faR','Febre amarela','reforço']]},
+ {m:108,v:[['hpv','HPV','dose única, de 9 a 14 anos']]}];
+const rotuloIdade=m=>m===0?'Ao nascer':m<24?m+(m===1?' mês':' meses'):(m/12)+' anos';
+function dataVacina(m){const d=new Date(bebe.nasc+'T00:00');d.setMonth(d.getMonth()+m);return d.getTime()}
+function gruposVacina(){
+  if(!bebe.nasc)return[];const hoje=inicioDia(Date.now());
+  return VACINAS.map(g=>{
+    const ms=dataVacina(g.m),itens=g.v.map(([id,nome,dose])=>({id,nome,dose,t:vacTomadas[id]}));
+    const faltam=itens.filter(i=>!i.t),dias=Math.round((ms-hoje)/D);
+    const st=!faltam.length?'ok':dias<0?'atrasada':dias<=7?'breve':'futura';
+    return{...g,ms,itens,faltam,dias,st};
+  });
+}
+function renderVacinas(){
+  const el=$('#vacinas'),sub=$('#vacSub');
+  if(!bebe.nasc){sub.textContent='Adicione a data de nascimento em Editar perfil para ver as datas das vacinas.';el.innerHTML='';return}
+  const gs=gruposVacina(),pend=gs.filter(g=>g.st==='atrasada'||g.st==='breve').length;
+  sub.textContent='Toque numa vacina para marcar que '+oBebe()+' já tomou.'+(pend?'':' Nenhuma pendente agora.');
+  const PILL={ok:'Tomadas',breve:'Em breve',atrasada:'Pendente'};
+  const proxima=gs.find(g=>g.st!=='ok');
+  el.innerHTML=gs.map(g=>{
+    const quando=g.st==='breve'?(g.dias===0?'hoje':g.dias===1?'amanhã':'em '+g.dias+' dias'):'';
+    const aberto=g.st==='atrasada'||g.st==='breve'||g===proxima;
+    return`<details class="vgrupo ${g.st}"${aberto?' open':''}><summary><span class="vt">${rotuloIdade(g.m)}</span>
+      <span class="vd">${dataLonga(diaKey(g.ms))}${quando?' · '+quando:''} · ${g.itens.length-g.faltam.length} de ${g.itens.length}</span>
+      ${PILL[g.st]?`<span class="pill ${g.st}">${PILL[g.st]}</span>`:'<span></span>'}</summary>
+      <div class="vlista">${g.itens.map(i=>`<button type="button" class="vac-item${i.t?' ok':''}" data-vac="${i.id}" data-m="${g.m}">
+        <span class="dtx"><span class="dn">${i.nome}</span><span class="ds${i.t?' ok':''}">${i.dose}${i.t?' · tomada em '+dataMed(i.t.data):''}</span></span>
+        <span class="ck">${i.t?CHECK:''}</span></button>`).join('')}
+      ${g.faltam.length>1?`<button type="button" class="link" data-vac-todas="${g.m}">Marcar todas como tomadas</button>`:''}</div></details>`;
+  }).join('');
+}
+function renderAlertaVac(){
+  const el=$('#alertaVac');if(!carregado){el.hidden=true;return}
+  const g=gruposVacina().find(x=>x.st==='atrasada'||x.st==='breve');
+  if(!g){el.hidden=true;return}
+  el.hidden=false;el.className='alerta vac forte'+(g.st==='atrasada'?' atrasada':'');
+  const quando=g.st==='atrasada'?'pendentes desde '+dataMed(diaKey(g.ms)):g.dias===0?'previstas para hoje':g.dias===1?'previstas para amanhã':'em '+g.dias+' dias';
+  const nomes=g.faltam.map(i=>i.nome.replace(/ \(.*\)/,'')),lista=nomes.length>1?nomes.slice(0,-1).join(', ')+' e '+nomes[nomes.length-1]:nomes[0];
+  el.innerHTML=`<span class="eyebrow">Vacinas ${esc(doBebe())} · ${quando}</span>
+    <b>${rotuloIdade(g.m)}: ${esc(lista)}</b>
+    <span class="desc">${nomeMae()?esc(nomeMae())+', ':''}${g.st==='atrasada'?'se '+oa('ele','ela')+' já tomou, marque no app. Se não, procure a unidade de saúde.':'leve a caderneta à unidade de saúde. Previstas para '+dataMed(diaKey(g.ms))+'.'} Toque para ver.</span>`;
+}
 const MTIPO={vitamina:'Vitamina',remedio:'Remédio',outro:'Outro'};
 const PRESETS=[['1x ao dia',['08:00']],['12 em 12 h',['08:00','20:00']],['8 em 8 h',['06:00','14:00','22:00']],['6 em 6 h',['00:00','06:00','12:00','18:00']],['Quando precisar',[]]];
 const NOMES={mamada:'Mamada',sono:'Sono',fralda:'Fralda',remedio:'Medicação',salto:'Salto',maeItem:'Item'};
@@ -544,7 +627,7 @@ function dataCurta(ms){return new Date(ms).toLocaleDateString('pt-BR',{day:'nume
 const LADO={esq:'Peito esquerdo',dir:'Peito direito',ambos:'Os dois peitos',mamadeira:'Mamadeira'};
 const FRALDA={xixi:'Xixi',coco:'Cocô',ambos:'Xixi e cocô',seca:'Seca'};
 
-let medidas=[],boasVindasVista=false;
+let medidas=[],boasVindasVista=false,vacTomadas={};
 let saltosReg={},saltoAtual=null,maeItens=[],maeTomadas=[],maeOcupado=false;
 let regs=[],bebe={},store=null,carregado=false,dia=inicioDia(Date.now()),editando=null,tipoAtual=null,apagarArmado=false;
 
@@ -575,10 +658,10 @@ const STORE_KEY='diario-bebe-v1',BACKUP_KEY='diario-bebe-ultimo-backup';
 function localStore(){
   const K=STORE_KEY;let data={regs:[],bebe:{}};
   try{const v=JSON.parse(localStorage.getItem(K));if(v&&Array.isArray(v.regs))data=v}catch(e){}
-  data.saltos=data.saltos||{};data.bebe=data.bebe||{};data.maeItens=data.maeItens||{};data.maeTomadas=data.maeTomadas||{};data.medidas=data.medidas||{};
-  let f=()=>{},g=()=>{},h=()=>{},k=()=>{},l=()=>{},mm=()=>{};
+  data.saltos=data.saltos||{};data.bebe=data.bebe||{};data.maeItens=data.maeItens||{};data.maeTomadas=data.maeTomadas||{};data.medidas=data.medidas||{};data.vacinas=data.vacinas||{};
+  let f=()=>{},g=()=>{},h=()=>{},k=()=>{},l=()=>{},mm=()=>{},vv=()=>{};
   const lista=o=>Object.entries(o).map(([id,v])=>({...v,id}));
-  const emit=()=>{f(data.regs.slice());g(data.bebe);h(data.saltos);k(lista(data.maeItens));l(lista(data.maeTomadas));mm(lista(data.medidas))};
+  const emit=()=>{f(data.regs.slice());g(data.bebe);h(data.saltos);k(lista(data.maeItens));l(lista(data.maeTomadas));mm(lista(data.medidas));vv(lista(data.vacinas))};
   const save=()=>{try{localStorage.setItem(K,JSON.stringify(data))}catch(e){}emit()};
   return{local:true,
     add:async o=>{const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);data.regs.push({...o,id});save();return id},
@@ -589,7 +672,8 @@ function localStore(){
     setMaeItem:async(id,o)=>{data.maeItens[id]=o;save()},delMaeItem:async id=>{delete data.maeItens[id];save()},
     setTomada:async(id,o)=>{data.maeTomadas[id]=o;save()},delTomada:async id=>{delete data.maeTomadas[id];save()},
     setMedida:async(id,o)=>{data.medidas[id]=o;save()},delMedida:async id=>{delete data.medidas[id];save()},
-    watch:(a,b,c,d,e,err,m)=>{f=a;g=b;h=c;k=d;l=e;mm=m||mm;emit()}};
+    setVacina:async(id,o)=>{data.vacinas[id]=o;save()},delVacina:async id=>{delete data.vacinas[id];save()},
+    watch:(a,b,c,d,e,err,m,v)=>{f=a;g=b;h=c;k=d;l=e;mm=m||mm;vv=v||vv;emit()}};
 }
 function dbStore(db){
   const col=db.collection('registros'),bdoc=db.doc('config/bebe');
@@ -599,7 +683,9 @@ function dbStore(db){
     setMaeItem:(id,o)=>db.doc('mae_itens/'+id).set(o),delMaeItem:id=>db.doc('mae_itens/'+id).delete(),
     setTomada:(id,o)=>db.doc('mae_tomadas/'+id).set(o),delTomada:id=>db.doc('mae_tomadas/'+id).delete(),
     setMedida:(id,o)=>db.doc('medidas/'+id).set(o),delMedida:id=>db.doc('medidas/'+id).delete(),
-    watch:(a,b,c,d,e,err,m)=>{
+    setVacina:(id,o)=>db.doc('vacinas/'+id).set(o),delVacina:id=>db.doc('vacinas/'+id).delete(),
+    watch:(a,b,c,d,e,err,m,v)=>{
+      if(v)db.collection('vacinas').onSnapshot(s=>v(s.docs.map(x=>({...x.data(),id:x.id}))),err);
       if(m)db.collection('medidas').onSnapshot(s=>m(s.docs.map(x=>({...x.data(),id:x.id}))),err);
       db.collection('mae_itens').onSnapshot(s=>d(s.docs.map(x=>({...x.data(),id:x.id}))),err);
       db.collection('mae_tomadas').orderBy('t','desc').limit(800).onSnapshot(s=>e(s.docs.map(x=>({...x.data(),id:x.id}))),err);
@@ -959,6 +1045,7 @@ function cartaoMedida(chave,rotulo,cor,fmt,fmtDelta){
 }
 function renderPerfil(){
   if(!carregado)return;
+  renderVacinas();
   const sx=SEXO[bebe.sexo];
   $('#perfilSub').textContent=nomeBebe()?'Dados '+doBebe()+' e a evolução do crescimento.':'Preencha os dados para o app chamar vocês pelo nome.';
   const idade=bebe.nasc?$('#bebeIdade').textContent.split(' · ')[0]:'';
@@ -979,7 +1066,7 @@ function abrirBoasVindas(){
   $('#entrada').hidden=false;
 }
 
-function render(){renderAcoes();renderDia();renderAlerta();renderSaltos();renderMae();renderAlertaMae();renderSono();renderSync();renderPerfil()}
+function render(){renderAcoes();renderDia();renderAlerta();renderSaltos();renderMae();renderAlertaMae();renderSono();renderSync();renderPerfil();renderAlertaVac()}
 const ABAS=[['dia','#viewDia','#abaDia'],['sono','#viewSono','#abaSono'],['saltos','#viewSaltos','#abaSaltos'],['mae','#viewMae','#abaMae'],['perfil','#viewPerfil',null]];
 function mostrarAba(q){if(!ABAS.some(a=>a[0]===q))q='dia';ABAS.forEach(([k,v,a])=>{$(v).hidden=k!==q;if(a)$(a).setAttribute('aria-selected',String(k===q))});$('.app').classList.toggle('modo-perfil',q==='perfil')}
 function irAba(q){mostrarAba(q);try{if(location.hash!=='#'+q)location.hash=q}catch(e){}}
@@ -1249,6 +1336,22 @@ $('#linha').addEventListener('click',e=>{
   const b=e.target.closest('.reg');if(!b)return;const r=regs.find(x=>x.id===b.dataset.id);if(r)abrir(r.tipo,r)});
 $('#bebeBtn').addEventListener('click',()=>{if(!carregado)return;irAba('perfil');scrollTo(0,0)});
 $('#voltar').addEventListener('click',()=>irAba('dia'));
+$('#alertaVac').addEventListener('click',()=>{irAba('perfil');const v=document.querySelector('.vgrupo.atrasada,.vgrupo.breve');(v||$('#vacinas')).scrollIntoView({block:'start'})});
+let vacOcupado=false;
+$('#vacinas').addEventListener('click',async e=>{
+  if(!carregado||vacOcupado)return;
+  const it=e.target.closest('[data-vac]'),todas=e.target.closest('[data-vac-todas]');
+  if(!it&&!todas)return;
+  vacOcupado=true;
+  const hoje=diaKey(Date.now()),dataPara=m=>{const ms=dataVacina(m);return ms<Date.now()?diaKey(ms):hoje};
+  if(it){const id=it.dataset.vac,nome=it.querySelector('.dn').textContent;
+    if(vacTomadas[id]){if(await gravar(()=>store.delVacina(id)))toast(nome+' desmarcada')}
+    else if(await gravar(()=>store.setVacina(id,{data:hoje})))toast(nome+' marcada como tomada')}
+  else{const m=+todas.dataset.vacTodas,g=VACINAS.find(x=>x.m===m),d=dataPara(m);
+    for(const [id] of g.v)if(!vacTomadas[id])await gravar(()=>store.setVacina(id,{data:d}));
+    toast('Vacinas marcadas como tomadas')}
+  vacOcupado=false;
+});
 $('#addMedida').addEventListener('click',()=>{if(carregado)abrir('medida')});
 $('#viewPerfil').addEventListener('click',e=>{
   if(e.target.id==='editarPerfil'){abrir('bebe');return}
@@ -1331,7 +1434,8 @@ render();renderBebe();
     its=>{maeItens=its.filter(x=>x&&x.nome).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));renderMae();renderAlertaMae()},
     ts=>{maeTomadas=ts.filter(x=>x&&typeof x.t==='number');renderMae();renderAlertaMae()},
     ()=>toast('Não foi possível carregar os registros. Recarregue a página.'),
-    ms=>{medidas=ms.filter(x=>x&&x.data).sort((a,b)=>b.data.localeCompare(a.data));renderPerfil()});
+    ms=>{medidas=ms.filter(x=>x&&x.data).sort((a,b)=>b.data.localeCompare(a.data));renderPerfil()},
+    vs=>{vacTomadas={};vs.forEach(x=>{if(x&&x.id)vacTomadas[x.id]=x});renderPerfil();renderAlertaVac()});
 })();
 // funciona sem internet depois da primeira abertura
 if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
